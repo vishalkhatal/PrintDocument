@@ -11,15 +11,21 @@ namespace EntityFrameWorkCodeFirstApproach.Models
         [Key]
         public int OrderId { get; set; }
         [Required]
+        [Display(Name = "Order Description")]
         public string OrderDescription { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         [Required]
-        public DateTime DeliveryAddress { get; set; }
+        [Display(Name = "Delivery Address")]
+        public string DeliveryAddress { get; set; }
         public int UserId { get; set; }
         public string Url { get; set; }
+        [Display(Name = "Upload File")]
+        public string FileName { get; set; }
+        [Display(Name = "Printing Cost")]
         public decimal PrintingCost { get; set; }
+        [Display(Name = "Total Pages")]
         public int TotalPages { get; set; }
         public DateTime DeliveryDate { get; set; }
 

@@ -11,6 +11,7 @@ using EntityFrameWorkCodeFirstApproach.Models;
 
 namespace EntityFrameWorkCodeFirstApproach.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -20,7 +21,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         {
             return View(await db.Orders.ToListAsync());
         }
-
+  
         // GET: Orders/Details/5
         public async Task<ActionResult> Details(int? id)
         {
@@ -47,15 +48,17 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "OrderId,OrderDescription,OrderStatus,CreatedDate,ModifiedDate,DeliveryAddress,UserId,Url,PrintingCost,TotalPages,DeliveryDate")] Order order)
+        public async Task<ActionResult> Create(Order order, HttpPostedFileBase file)
         {
             if (ModelState.IsValid)
             {
-                db.Orders.Add(order);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                if (file != null)
+                {
+                    db.Orders.Add(order);
+                    await db.SaveChangesAsync();
+                    return RedirectToAction("Index");
+                }
             }
-
             return View(order);
         }
 
