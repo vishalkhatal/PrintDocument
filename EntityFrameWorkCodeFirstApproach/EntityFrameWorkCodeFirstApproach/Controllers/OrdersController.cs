@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using EntityFrameWorkCodeFirstApproach.Models;
 using Microsoft.WindowsAzure.Storage.Blob;
 using EntityFrameWorkCodeFirstApproach.Services;
+using Microsoft.AspNet.Identity;
 
 namespace EntityFrameWorkCodeFirstApproach.Controllers
 {
@@ -55,10 +56,15 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         {
             if (ModelState.IsValid && file != null)
             {           
-                    var fileUploadResult = Upload(file);
-                    if (fileUploadResult)
+                    var fileUrl = Upload(file);
+                    if (!string.IsNullOrEmpty(fileUrl))
                     {
-                        db.Orders.Add(order);
+                    order.FileName = file.FileName;
+                    order.CreatedDate = DateTime.UtcNow;
+                    order.ModifiedDate = DateTime.UtcNow;
+                    order.UserId= User.Identity.GetUserId();
+                    order.Url = fileUrl;
+                    db.Orders.Add(order);
                         await db.SaveChangesAsync();
                         return RedirectToAction("Index");
                     }
@@ -66,7 +72,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
             }
             return View(order);
         }
-        private bool Upload(HttpPostedFileBase file)  
+        private string Upload(HttpPostedFileBase file)  
         {
             try
             {
@@ -77,6 +83,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
 
                     // Upload content to the blob, which will create the blob if it does not already exist.  
                     blob.UploadFromStream(file.InputStream);
+                    return blob.SnapshotQualifiedUri.ToString();
                 }
             }
             catch (Exception ex)
@@ -84,10 +91,10 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
                 CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
                 CloudBlockBlob blob2 = blobContainer.GetBlockBlobReference("myfile.txt");
                 blob2.UploadText(ex.ToString());
-                return false;
+                return string.Empty;
 
             }
-            return true;
+            return string.Empty;
         }
         // GET: Orders/Edit/5
         public async Task<ActionResult> Edit(int? id)

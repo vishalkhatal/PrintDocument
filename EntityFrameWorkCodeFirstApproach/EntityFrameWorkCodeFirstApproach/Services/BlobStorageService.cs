@@ -19,7 +19,7 @@ namespace EntityFrameWorkCodeFirstApproach.Services
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             // Retrieve reference to a previously created container.
-            CloudBlobContainer blobContainer = blobClient.GetContainerReference("Documents");
+            CloudBlobContainer blobContainer = blobClient.GetContainerReference("documents");
             if (blobContainer.CreateIfNotExists())
             {
                 blobContainer.SetPermissions(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });//Allowing public Access  

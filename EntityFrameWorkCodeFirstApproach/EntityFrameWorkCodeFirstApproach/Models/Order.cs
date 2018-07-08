@@ -19,7 +19,7 @@ namespace EntityFrameWorkCodeFirstApproach.Models
         [Required]
         [Display(Name = "Delivery Address")]
         public string DeliveryAddress { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public string Url { get; set; }
         [Display(Name = "Upload File")]
         public string FileName { get; set; }
@@ -27,7 +27,7 @@ namespace EntityFrameWorkCodeFirstApproach.Models
         public decimal PrintingCost { get; set; }
         [Display(Name = "Total Pages")]
         public int TotalPages { get; set; }
-        public DateTime DeliveryDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
 
 
     }
