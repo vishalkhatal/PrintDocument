@@ -8,6 +8,8 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using EntityFrameWorkCodeFirstApproach.Models;
+using Microsoft.WindowsAzure.Storage.Blob;
+using EntityFrameWorkCodeFirstApproach.Services;
 
 namespace EntityFrameWorkCodeFirstApproach.Controllers
 {
@@ -15,6 +17,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
     public class OrdersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        BlobStorageServices blobStorageServices = new BlobStorageServices();
 
         // GET: Orders
         public async Task<ActionResult> Index()
@@ -50,18 +53,42 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(Order order, HttpPostedFileBase file)
         {
-            if (ModelState.IsValid)
-            {
-                if (file != null)
-                {
-                    db.Orders.Add(order);
-                    await db.SaveChangesAsync();
-                    return RedirectToAction("Index");
-                }
+            if (ModelState.IsValid && file != null)
+            {           
+                    var fileUploadResult = Upload(file);
+                    if (fileUploadResult)
+                    {
+                        db.Orders.Add(order);
+                        await db.SaveChangesAsync();
+                        return RedirectToAction("Index");
+                    }
+                
             }
             return View(order);
         }
+        private bool Upload(HttpPostedFileBase file)  
+        {
+            try
+            {
+                if (file.ContentLength > 0)
+                {
+                    CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
+                    CloudBlockBlob blob = blobContainer.GetBlockBlobReference(file.FileName);
 
+                    // Upload content to the blob, which will create the blob if it does not already exist.  
+                    blob.UploadFromStream(file.InputStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
+                CloudBlockBlob blob2 = blobContainer.GetBlockBlobReference("myfile.txt");
+                blob2.UploadText(ex.ToString());
+                return false;
+
+            }
+            return true;
+        }
         // GET: Orders/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
