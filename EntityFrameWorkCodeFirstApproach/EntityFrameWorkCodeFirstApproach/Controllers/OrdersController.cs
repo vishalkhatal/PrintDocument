@@ -25,7 +25,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         {
             return View(await db.Orders.ToListAsync());
         }
-  
+
         // GET: Orders/Details/5
         public async Task<ActionResult> Details(int? id)
         {
@@ -54,48 +54,36 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(Order order, HttpPostedFileBase file)
         {
-            if (ModelState.IsValid && file != null)
-            {           
+            try
+            {
+                if (ModelState.IsValid && file != null)
+                {
                     var fileUrl = Upload(file);
                     if (!string.IsNullOrEmpty(fileUrl))
                     {
-                    order.FileName = file.FileName;
-                    order.CreatedDate = DateTime.UtcNow;
-                    order.ModifiedDate = DateTime.UtcNow;
-                    order.UserId= User.Identity.GetUserId();
-                    order.Url = fileUrl;
-                    db.Orders.Add(order);
+                        order.FileName = file.FileName;
+                        order.CreatedDate = DateTime.UtcNow;
+                        order.ModifiedDate = DateTime.UtcNow;
+                        order.UserId = User.Identity.GetUserId();
+                        order.Url = fileUrl;
+                        db.Orders.Add(order);
                         await db.SaveChangesAsync();
                         return RedirectToAction("Index");
                     }
-                
-            }
-            return View(order);
-        }
-        private string Upload(HttpPostedFileBase file)  
-        {
-            try
-            {
-                if (file.ContentLength > 0)
-                {
-                    CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
-                    CloudBlockBlob blob = blobContainer.GetBlockBlobReference(file.FileName);
 
-                    // Upload content to the blob, which will create the blob if it does not already exist.  
-                    blob.UploadFromStream(file.InputStream);
-                    return blob.SnapshotQualifiedUri.ToString();
                 }
             }
             catch (Exception ex)
             {
                 CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
-                CloudBlockBlob blob2 = blobContainer.GetBlockBlobReference("myfile.txt");
+                CloudBlockBlob blob2 = blobContainer.GetBlockBlobReference("logs.txt");
                 blob2.UploadText(ex.ToString());
-                return string.Empty;
+                return View(order);
 
             }
-            return string.Empty;
+            return View(order);
         }
+      
         // GET: Orders/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
@@ -160,6 +148,30 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+        private string Upload(HttpPostedFileBase file)
+        {
+            try
+            {
+                if (file.ContentLength > 0)
+                {
+                    CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
+                    CloudBlockBlob blob = blobContainer.GetBlockBlobReference(file.FileName);
+
+                    // Upload content to the blob, which will create the blob if it does not already exist.  
+                    blob.UploadFromStream(file.InputStream);
+                    return blob.SnapshotQualifiedUri.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                CloudBlobContainer blobContainer = blobStorageServices.GetCloudBlobContainer();
+                CloudBlockBlob blob2 = blobContainer.GetBlockBlobReference("myfile.txt");
+                blob2.UploadText(ex.ToString());
+                return string.Empty;
+
+            }
+            return string.Empty;
         }
     }
 }
