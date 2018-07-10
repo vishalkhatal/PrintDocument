@@ -37,7 +37,7 @@ namespace EntityFrameWorkCodeFirstApproach
                 //Here we create a Admin super user who will maintain the website				
 
                 var user = new ApplicationUser();
-                user.UserName = "admin";
+                user.UserName = "admin@gmail.com";
                 user.Email = "admin@gmail.com";
 
                 string userPWD = "@ewfwad";
