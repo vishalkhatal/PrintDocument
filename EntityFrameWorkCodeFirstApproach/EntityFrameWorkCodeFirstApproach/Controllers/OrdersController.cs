@@ -23,7 +23,11 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         // GET: Orders
         public async Task<ActionResult> Index()
         {
-            return View(await db.Orders.ToListAsync());
+            var userId= User.Identity.GetUserId(); 
+            if(!User.IsInRole("admin"))
+            return View(await db.Orders.Where(x => x.UserId == userId).ToListAsync());
+            else
+                return View(await db.Orders.ToListAsync());
         }
 
         // GET: Orders/Details/5
