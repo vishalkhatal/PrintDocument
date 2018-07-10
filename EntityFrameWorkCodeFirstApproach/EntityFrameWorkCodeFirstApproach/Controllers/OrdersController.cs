@@ -24,7 +24,7 @@ namespace EntityFrameWorkCodeFirstApproach.Controllers
         public async Task<ActionResult> Index()
         {
             var userId= User.Identity.GetUserId(); 
-            if(!User.IsInRole("admin"))
+            if(!User.IsInRole("Admin"))
             return View(await db.Orders.Where(x => x.UserId == userId).ToListAsync());
             else
                 return View(await db.Orders.ToListAsync());
